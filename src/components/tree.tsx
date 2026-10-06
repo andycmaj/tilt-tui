@@ -11,7 +11,6 @@ import {
   createSelector,
 } from "solid-js";
 import type { Renderable, ScrollBoxRenderable, RGBA } from "@opentui/core";
-import { createStore } from "solid-js/store";
 import { useTilt } from "../context/tilt";
 import {
   useFocus,
@@ -30,6 +29,7 @@ import { statusColor } from "@/theme/tilt-colors";
 import { Header } from "./header";
 import { type Resource, ResourceStatus, ResourceName } from "../tilt/types";
 import { Commands } from "@/commands";
+import { getGroupKey } from "@/tilt/groups";
 import {
   getEffectiveStatus,
   runtimeReadinessDurationMs,
@@ -47,35 +47,6 @@ interface TreeNode {
   expanded?: boolean;
   childCount?: number;
   depth: number;
-}
-
-// Group resources by labels
-function getGroupKey(r: Resource): string {
-  if (!r.raw) return "ungrouped";
-
-  const labels = r.raw.metadata.labels ?? {};
-  if (Object.keys(labels).length === 0) return "ungrouped";
-
-  // Priority keys for grouping
-  const priorityKeys = [
-    "app",
-    "app.kubernetes.io/name",
-    "app.kubernetes.io/component",
-    "component",
-    "service",
-    "tilt.dev/resource",
-  ];
-
-  for (const key of priorityKeys) {
-    if (labels[key]) return labels[key];
-  }
-
-  // Fall back to first label value
-  for (const val of Object.values(labels)) {
-    if (val) return val;
-  }
-
-  return "ungrouped";
 }
 
 function buildTreeNodes(
@@ -138,9 +109,6 @@ function buildTreeNodes(
   return nodes;
 }
 
-// Export getGroupKey for use by resource picker
-export { getGroupKey };
-
 export function Tree() {
   const {
     state,
@@ -150,6 +118,8 @@ export function Tree() {
     cycleStatusFilter,
     resetStatusFilter,
     toggleShowDisabledResources,
+    setGroupExpanded,
+    setAllGroupsExpanded,
   } = useTilt();
   const { setActivePane, isPaneFocused } = useFocus();
   const isFocused = () => isPaneFocused("tree");
@@ -157,10 +127,6 @@ export function Tree() {
 
   const [cursor, setCursor] = createSignal(0);
   const isSelected = createSelector(cursor);
-
-  const [expandedGroups, setExpandedGroups] = createStore<
-    Record<string, boolean>
-  >({});
 
   let scrollRef: ScrollBoxRenderable | undefined;
 
@@ -180,7 +146,7 @@ export function Tree() {
       resources = resources.filter((r) => !r.isDisabled);
     }
 
-    return buildTreeNodes(resources, expandedGroups);
+    return buildTreeNodes(resources, state.expandedGroups);
   });
 
   // Derived: count of filtered resources for header display
@@ -219,7 +185,7 @@ export function Tree() {
         if (resource) {
           const groupKey = getGroupKey(resource);
           // Expand the group first
-          setExpandedGroups(groupKey, true);
+          setGroupExpanded(groupKey, true);
 
           // Find the cursor position for this resource in the nodes list
           // Need to rebuild nodes with the expanded group to find correct index
@@ -235,7 +201,7 @@ export function Tree() {
           }
 
           const updatedNodes = buildTreeNodes(filtered, {
-            ...expandedGroups,
+            ...state.expandedGroups,
             [groupKey]: true,
           });
           const nodeIndex = updatedNodes.findIndex(
@@ -289,8 +255,23 @@ export function Tree() {
       const nodeIndex = nodeList.findIndex(
         (n) => n.type === "resource" && n.resource?.name === name,
       );
-      if (nodeIndex !== -1 && nodeIndex !== cursor()) {
-        setCursor(nodeIndex);
+      if (nodeIndex !== -1) {
+        if (nodeIndex !== cursor()) setCursor(nodeIndex);
+        return;
+      }
+
+      // The selected resource's group was collapsed (e.g. collapse all): land
+      // on that group instead of an index that now points elsewhere.
+      const resource = state.resources.find((r) => r.name === name);
+      const groupIndex = resource
+        ? nodeList.findIndex(
+            (n) => n.type === "group" && n.groupName === getGroupKey(resource),
+          )
+        : -1;
+      if (groupIndex !== -1) {
+        setCursor(groupIndex);
+      } else if (cursor() >= nodeList.length) {
+        setCursor(Math.max(nodeList.length - 1, 0));
       }
     }),
   );
@@ -335,7 +316,7 @@ export function Tree() {
   const toggleGroup = () => {
     const node = nodes()[cursor()];
     if (node?.type === "group" && node.groupName) {
-      setExpandedGroups(node.groupName, !node.expanded);
+      setGroupExpanded(node.groupName, !node.expanded);
     }
   };
 
@@ -373,6 +354,8 @@ export function Tree() {
         toggleGroup();
         selectResourceAtCursor(true);
       },
+      [Commands.TREE_EXPAND_ALL]: () => setAllGroupsExpanded(true),
+      [Commands.TREE_COLLAPSE_ALL]: () => setAllGroupsExpanded(false),
       [Commands.TREE_TOGGLE_DISABLED]: toggleShowDisabledResources,
       [Commands.STATUS_FILTER_CYCLE]: cycleStatusFilter,
       [Commands.STATUS_FILTER_RESET]: () => {

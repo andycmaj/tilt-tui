@@ -46,6 +46,8 @@ export const keymap: KeymapTable = {
   tree: [
     ...treeNav,
     { key: "return", cmd: Commands.TREE_SELECT, desc: "select" },
+    { key: "e", cmd: Commands.TREE_EXPAND_ALL, desc: "expand all groups" },
+    { key: "c", cmd: Commands.TREE_COLLAPSE_ALL, desc: "collapse all groups" },
     { key: "d", cmd: Commands.TREE_TOGGLE_DISABLED, desc: "toggle disabled" },
     {
       key: "f",

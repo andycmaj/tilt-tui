@@ -30,6 +30,7 @@ import {
   ResourceStatus,
 } from "../tilt/types";
 import LogStore from "../tilt/logstore2";
+import { getGroupKey } from "../tilt/groups";
 import { loadUserSettings } from "../config/user-settings";
 
 export type StatusFilter =
@@ -52,6 +53,8 @@ interface TiltState {
   selectedResource: string | null;
   statusFilter: StatusFilter;
   showDisabledResources: boolean;
+  // Groups absent here fall back to the tree's default expansion.
+  expandedGroups: Record<string, boolean>;
   tiltArgs: Record<string, string | boolean | undefined>;
   tiltStartTime: string | null;
 }
@@ -66,6 +69,8 @@ interface TiltContextValue {
   cycleStatusFilter: () => void;
   resetStatusFilter: () => void;
   toggleShowDisabledResources: () => void;
+  setGroupExpanded: (group: string, expanded: boolean) => void;
+  setAllGroupsExpanded: (expanded: boolean) => void;
   /** Names of active log filters from user config */
   activeLogFilterNames: () => string[];
 }
@@ -95,6 +100,7 @@ export function TiltProvider(
     selectedResource: null,
     statusFilter: "all",
     showDisabledResources: false,
+    expandedGroups: {},
     tiltArgs: {},
     tiltStartTime: null,
   });
@@ -305,6 +311,17 @@ export function TiltProvider(
     setState("showDisabledResources", (current) => !current);
   }
 
+  function setGroupExpanded(group: string, expanded: boolean) {
+    setState("expandedGroups", group, expanded);
+  }
+
+  function setAllGroupsExpanded(expanded: boolean) {
+    const groups = Object.fromEntries(
+      state.resources.map((r) => [getGroupKey(r), expanded]),
+    );
+    setState("expandedGroups", groups);
+  }
+
   async function triggerResource(name: string) {
     try {
       await client.triggerResource(name);
@@ -389,6 +406,8 @@ export function TiltProvider(
     cycleStatusFilter,
     resetStatusFilter,
     toggleShowDisabledResources,
+    setGroupExpanded,
+    setAllGroupsExpanded,
     activeLogFilterNames,
   };
 

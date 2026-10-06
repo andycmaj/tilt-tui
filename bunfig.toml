@@ -1,0 +1,9 @@
+# No global `preload` here on purpose.
+#
+# A global preload runs for every `bun run`, including utility scripts like
+# script/install-notes.ts and script/version.ts that don't touch Solid. On the
+# self-hosted release runners (Bun 1.3.5) loading @opentui/solid/preload pulls
+# in @babel/traverse and crashes with "_debug is not a function", breaking the
+# release workflow. The paths that actually need the Solid transform supply it
+# themselves: `dev`/`debug` pass `--preload @opentui/solid/preload`, and
+# script/build.ts registers the Solid plugin directly via Bun.build.

@@ -31,14 +31,14 @@ warn("generate a warning")
 # https://docs.tilt.dev/live_update_reference.html
 docker_build(
     'tilt-avatar-api',
-    context='.',
-    dockerfile='./deploy/api.dockerfile',
+    context='tilt-demo',
+    dockerfile='./tilt-demo/deploy/api.dockerfile',
     only=['./api/'],
     live_update=[
-        sync('./api/', '/app/api/'),
+        sync('./tilt-demo/api/', '/app/api/'),
         run(
             'pip install -r /app/requirements.txt',
-            trigger=['./api/requirements.txt']
+            trigger=['./tilt-demo/api/requirements.txt']
         )
     ]
 )
@@ -46,7 +46,7 @@ docker_build(
 # k8s_yaml automatically creates resources in Tilt for the entities
 # and will inject any images referenced in the Tiltfile when deploying
 # https://docs.tilt.dev/api.html#api.k8s_yaml
-k8s_yaml('deploy/api.yaml')
+k8s_yaml('tilt-demo/deploy/api.yaml')
 
 # k8s_resource allows customization where necessary such as adding port forwards and labels
 # https://docs.tilt.dev/api.html#api.k8s_resource
@@ -159,16 +159,16 @@ cmd_button('global-search',
 # https://docs.tilt.dev/live_update_reference.html
 docker_build(
     'tilt-avatar-web',
-    context='.',
-    dockerfile='./deploy/web.dockerfile',
+    context='tilt-demo',
+    dockerfile='./tilt-demo/deploy/web.dockerfile',
     only=['./web/'],
     ignore=['./web/dist/'],
     live_update=[
-        fall_back_on('./web/vite.config.js'),
-        sync('./web/', '/app/'),
+        fall_back_on('./tilt-demo/web/vite.config.js'),
+        sync('./tilt-demo/web/', '/app/'),
         run(
             'yarn install',
-            trigger=['./web/package.json', './web/yarn.lock']
+            trigger=['./tilt-demo/web/package.json', './tilt-demo/web/yarn.lock']
         )
     ]
 )
@@ -176,7 +176,7 @@ docker_build(
 # k8s_yaml automatically creates resources in Tilt for the entities
 # and will inject any images referenced in the Tiltfile when deploying
 # https://docs.tilt.dev/api.html#api.k8s_yaml
-k8s_yaml('deploy/web.yaml')
+k8s_yaml('tilt-demo/deploy/web.yaml')
 
 # k8s_resource allows customization where necessary such as adding port forwards and labels
 # https://docs.tilt.dev/api.html#api.k8s_resource

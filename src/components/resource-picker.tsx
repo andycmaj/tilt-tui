@@ -17,7 +17,7 @@ import {
 import { ResourceStatusDot } from "./resource-status-dot";
 import { useTilt } from "../context/tilt";
 import { type Resource } from "../tilt/types";
-import { getGroupKey } from "./tree";
+import { getGroupKey } from "../tilt/groups";
 import { getEffectiveStatus } from "@/tilt/status-utils";
 import { useBlinkWhenBuilding } from "@/hooks/useBlinkWhenBuilding";
 import { fuzzyMatch } from "@/utils/fuzzy";

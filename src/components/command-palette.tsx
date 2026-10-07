@@ -5,8 +5,10 @@
 import { createMemo } from "solid-js";
 import {
   CommandPalette,
+  getScopeBindings,
   useFocus,
   useKeymap,
+  useKeymapTable,
   useReachableBindings,
   type PaletteAction,
 } from "@andycmaj/opentui-app";
@@ -28,11 +30,15 @@ interface TiltCommandPaletteProps {
 }
 
 export function TiltCommandPalette(props: TiltCommandPaletteProps) {
-  const { state, client } = useTilt();
+  const { state, client, setAllGroupsExpanded } = useTilt();
   const { activePaneTarget, openModal } = useFocus();
   const { updateInfo } = useVersionInfo();
   const keymap = useKeymap();
   const bindings = useReachableBindings();
+  const treeBindings = getScopeBindings(useKeymapTable(), "tree");
+
+  const treeKeys = (cmd: string): string | undefined =>
+    treeBindings.find((b) => b.cmd === cmd)?.keys;
 
   function buttonAction(
     button: ButtonAction,
@@ -111,6 +117,25 @@ export function TiltCommandPalette(props: TiltCommandPaletteProps) {
         result.push(buttonAction(button, button.name, "Global Actions"));
       }
     }
+
+    // Offered from any pane: the expansion state lives in the tilt context, so
+    // these don't need the tree focused to dispatch.
+    result.push(
+      {
+        id: `command:${Commands.TREE_EXPAND_ALL}`,
+        label: "Expand all groups",
+        hint: treeKeys(Commands.TREE_EXPAND_ALL),
+        group: "Tree",
+        run: () => setAllGroupsExpanded(true),
+      },
+      {
+        id: `command:${Commands.TREE_COLLAPSE_ALL}`,
+        label: "Collapse all groups",
+        hint: treeKeys(Commands.TREE_COLLAPSE_ALL),
+        group: "Tree",
+        run: () => setAllGroupsExpanded(false),
+      },
+    );
 
     // Keybound commands reachable from the active pane, innermost first.
     // Dispatch against that pane: the palette's own modal holds real focus.

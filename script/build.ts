@@ -99,20 +99,6 @@ for (const item of targets) {
     process.exit(1);
   }
 
-  // Create package.json for the binary package
-  await Bun.file(`dist/${name}/package.json`).write(
-    JSON.stringify(
-      {
-        name: `@andycmaj/${name}`,
-        version,
-        os: [item.os],
-        cpu: [item.arch],
-      },
-      null,
-      2,
-    ),
-  );
-
   binaries[name] = version;
   console.log(`Built ${name} successfully`);
 }

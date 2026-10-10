@@ -1,4 +1,4 @@
-name: Create Release
+name: tilt-tui Release
 run-name: "release ${{ inputs.version || inputs.bump }}"
 
 on:
@@ -60,18 +60,14 @@ jobs:
         with:
           ref: ${{ needs.version.outputs.tag }}
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - run: bun install
-        env:
-          # Use a per-job cache dir instead of the shared self-hosted-runner
-          # cache. Cross-compiling downloads target Bun runtimes into this
-          # cache; a corrupt/incomplete download would otherwise persist and
-          # break every subsequent run. runner.temp is fresh each job.
-          BUN_INSTALL_CACHE_DIR: ${{ runner.temp }}/bun-cache
 
       - name: Build cross-platform binaries
         run: bun run build:binary
-        env:
-          BUN_INSTALL_CACHE_DIR: ${{ runner.temp }}/bun-cache
 
       - name: Upload binary artifacts
         uses: actions/upload-artifact@v4
@@ -97,6 +93,10 @@ jobs:
         with:
           name: tilt-tui-binaries
           path: dist/
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Attach binaries to release
         env:

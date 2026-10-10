@@ -2,8 +2,8 @@
 
 // Shared install instructions for GitHub releases, using mise.
 //
-// Single source of truth for both the main-channel release (.github/workflows/create-release.yml)
-// and the per-PR beta release (.github/workflows/beta.yml). No npm, no private
+// Single source of truth for both the main-channel release (.github/workflows/tilt-tui-release.yml)
+// and the per-PR beta release (.github/workflows/tilt-tui-beta.yml). No npm, no private
 // registry — mise installs the binary straight from the GitHub release assets.
 //
 // As a module:  import { installNotes } from "./install-notes";

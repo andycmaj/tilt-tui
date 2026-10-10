@@ -1,9 +1,18 @@
-name: Beta Release
+name: tilt-tui Beta Release
 run-name: "beta PR #${{ github.event.pull_request.number }}"
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
+    # Only PRs that can change the tilt-tui binary get a beta build.
+    paths:
+      - src/**
+      - script/**
+      - package.json
+      - bun.lock
+      - bunfig.toml
+      - tsconfig.json
+      - .github/workflows/tilt-tui-beta.yml
 
 concurrency:
   group: beta-${{ github.event.pull_request.number }}

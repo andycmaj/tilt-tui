@@ -22,7 +22,7 @@ beta/release flow based on opencode publishing/versioning method in <https://git
 
 ### Main-channel releases
 
-- create a manual dispatch action for `create-release`.
+- create a manual dispatch action for `tilt-tui-release`.
 - runs on main branch
 - increments git release tag with input from manual dispatch (or defaults to incrementing patch version in package.json.
 - does a package.json bump with desired new version, commits, tags with desired tag.

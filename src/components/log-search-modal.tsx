@@ -10,7 +10,7 @@ import {
   ModalCommands,
   type BindingSpec,
 } from "@andycmaj/opentui-app";
-import type { LogSearchFilter } from "./log-buffer";
+import type { LogSearchFilter } from "@andycmaj/opentui-app";
 import { parseSearchQuery } from "../utils/log-search-utils";
 
 const SUBMIT: BindingSpec = {

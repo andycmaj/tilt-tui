@@ -1,6 +1,6 @@
 // Log search utility functions
 
-import type { LogSearchFilter } from "../components/log-buffer";
+import type { LogSearchFilter } from "@andycmaj/opentui-app";
 
 /**
  * Parse a search query into a LogSearchFilter.

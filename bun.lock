@@ -5,7 +5,7 @@
     "": {
       "name": "tilt-tui-opentui",
       "dependencies": {
-        "@andycmaj/opentui-app": "0.2.0",
+        "@andycmaj/opentui-app": "0.3.0",
         "@opentui/core": "0.5.12",
         "@opentui/solid": "0.5.12",
         "citty": "^0.2.2",
@@ -24,7 +24,7 @@
   "packages": {
     "@ampproject/remapping": ["@ampproject/remapping@2.3.0", "", { "dependencies": { "@jridgewell/gen-mapping": "^0.3.5", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw=="],
 
-    "@andycmaj/opentui-app": ["@andycmaj/opentui-app@0.2.0", "", { "dependencies": { "@opentui/keymap": "0.5.12", "marked": "^17.0.1" }, "peerDependencies": { "@opentui/core": "0.5.12", "@opentui/solid": "0.5.12", "solid-js": "1.9.12" } }, "sha512-TPaK3VP3cMWoXiJ0syF7BZd/SHN4M25ydXIjv7mAzhujBt0Q4k+2n1zYTDz0Q2wjPRdOGbIFIFhrUWL5RPSsZQ=="],
+    "@andycmaj/opentui-app": ["@andycmaj/opentui-app@0.3.0", "", { "dependencies": { "@opentui/keymap": "0.5.12", "marked": "^17.0.1" }, "peerDependencies": { "@opentui/core": "0.5.12", "@opentui/solid": "0.5.12", "solid-js": "1.9.12" } }, "sha512-fQUJdZveeK+5t13sVKHjc1RDSGaB44erZmanMTfMQm536SfO0Nrc3dvDAKqXSux+3PzM9aj+aWtQqM3+oVfBsA=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.28.6", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q=="],
 

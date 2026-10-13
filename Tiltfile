@@ -22,6 +22,35 @@ namespace_create(
 
 load('ext://uibutton', 'cmd_button', 'text_input', 'bool_input', 'choice_input', 'location')
 
+# k3d clusters created without a registry can't pull tilt's images, and tilt
+# falls back to pushing to docker.io. Import images straight into the cluster.
+# skips_local_docker stops tilt retagging locally, so the imported tag is the
+# one that gets deployed. Direct mode avoids parallel builds racing to create
+# k3d's shared tools container.
+def demo_image(ref, app, ignore=[], live_update=[]):
+    dockerfile = './tilt-demo/deploy/%s.dockerfile' % app
+    ctx = k8s_context()
+    if ctx.startswith('k3d-'):
+        custom_build(
+            ref,
+            'docker build -t $EXPECTED_REF -f %s tilt-demo && k3d image import -m direct -c %s $EXPECTED_REF' % (dockerfile, ctx[len('k3d-'):]),
+            deps=['tilt-demo/%s/' % app],
+            ignore=ignore,
+            live_update=live_update,
+            disable_push=True,
+            skips_local_docker=True,
+        )
+    else:
+        docker_build(
+            ref,
+            context='tilt-demo',
+            dockerfile=dockerfile,
+            only=['./%s/' % app],
+            ignore=['./%s/%s' % (app, i) for i in ignore],
+            live_update=live_update,
+        )
+
+
 warn("generate a warning")
 
 # tilt-avatar-api is the backend (Python/Flask app)
@@ -29,11 +58,9 @@ warn("generate a warning")
 # and runs pip (python package manager) to update dependencies when changed
 # https://docs.tilt.dev/api.html#api.docker_build
 # https://docs.tilt.dev/live_update_reference.html
-docker_build(
+demo_image(
     'tilt-avatar-api',
-    context='tilt-demo',
-    dockerfile='./tilt-demo/deploy/api.dockerfile',
-    only=['./api/'],
+    app='api',
     live_update=[
         sync('./tilt-demo/api/', '/app/api/'),
         run(
@@ -157,12 +184,10 @@ cmd_button('global-search',
 # changed dynamically at runtime
 # https://docs.tilt.dev/api.html#api.docker_build
 # https://docs.tilt.dev/live_update_reference.html
-docker_build(
+demo_image(
     'tilt-avatar-web',
-    context='tilt-demo',
-    dockerfile='./tilt-demo/deploy/web.dockerfile',
-    only=['./web/'],
-    ignore=['./web/dist/'],
+    app='web',
+    ignore=['dist/'],
     live_update=[
         fall_back_on('./tilt-demo/web/vite.config.js'),
         sync('./tilt-demo/web/', '/app/'),
@@ -360,7 +385,6 @@ local_resource('echo 1', cmd='echo foo', auto_init=False, trigger_mode=TRIGGER_M
 local_resource('echo 2', cmd='echo foo')
 local_resource('echo 3', cmd='echo foo')
 local_resource('echo 4', cmd='echo foo')
-local_resource('echo 5', cmd='while :; do sleep 2073600; done')
 local_resource('echo 6', cmd='echo foo')
 local_resource('echo 7', cmd='echo foo')
 local_resource('echo 8', cmd='echo foo')

@@ -19,7 +19,6 @@ export class TiltCliError extends Error {
 export const TILT_ENV = {
   TILT_DISABLE_ANALYTICS: "true",
   DO_NOT_TRACK: "true",
-  TILT_ATTACH_REUSE_CLUSTER_IMAGES: "1",
 } as const;
 
 /**

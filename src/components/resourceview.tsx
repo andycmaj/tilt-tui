@@ -5,6 +5,8 @@ import { createSignal, createMemo, Show, createEffect, on } from "solid-js";
 import type { Renderable } from "@opentui/core";
 import {
   Footer,
+  LogBufferView,
+  type LogBufferViewRef,
   Pane,
   PaneHeader,
   useFocus,
@@ -15,7 +17,6 @@ import {
 import { useTilt } from "../context/tilt";
 import { useVersionInfo } from "../context/version-info";
 import { Commands } from "../commands";
-import { LogBufferView, type LogBufferViewRef } from "./log-buffer-view";
 import type { LogSearchFilter } from "./log-search-modal";
 
 interface ResourceViewProps {
@@ -47,9 +48,8 @@ export function ResourceView(props: ResourceViewProps) {
 
   // Create LogBufferView - returns [Component, Ref] tuple
   const [LogView, logRef] = LogBufferView({
-    logStore,
-    manifestName: () => state.selectedResource,
-    theme,
+    source: logStore,
+    sourceKey: () => state.selectedResource,
     showTimestamps,
     onAutoScrollChange: setAutoScroll,
     onTextCopied: () => {

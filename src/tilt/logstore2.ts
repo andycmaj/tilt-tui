@@ -2,6 +2,11 @@
 //
 // with support for incremental updates and rendering.
 
+import {
+  LogUpdateAction,
+  type LogSource,
+  type LogUpdateEvent,
+} from "@andycmaj/opentui-app";
 import { APILogList, APISpan } from "./api-types";
 import { isBuildSpanId } from "./log-utils";
 import { APILogSegment, LogLevel, LogLine, LogPatchSet } from "./types";
@@ -65,18 +70,11 @@ class StoredLine {
   }
 }
 
-export enum LogUpdateAction {
-  append,
-  truncate,
-}
-
-export interface LogUpdateEvent {
-  action: LogUpdateAction;
-}
+export { LogUpdateAction };
 
 type callback = (e: LogUpdateEvent) => void;
 
-class LogStore implements LogAlertIndex {
+class LogStore implements LogAlertIndex, LogSource<LogLine> {
   // Track which segments we've received from the server.
   checkpoint: number;
 
@@ -145,7 +143,7 @@ class LogStore implements LogAlertIndex {
     this.lineCache = {};
     this.logLength = 0;
     this.invokeUpdateCallbacks({
-      action: LogUpdateAction.truncate,
+      action: LogUpdateAction.TRUNCATE,
     });
   }
 
@@ -241,7 +239,7 @@ class LogStore implements LogAlertIndex {
     newSegments.forEach((segment) => this.addSegment(segment));
 
     this.invokeUpdateCallbacks({
-      action: LogUpdateAction.append,
+      action: LogUpdateAction.APPEND,
     });
 
     this.ensureMaxLength();
@@ -379,7 +377,7 @@ class LogStore implements LogAlertIndex {
     }
 
     this.invokeUpdateCallbacks({
-      action: LogUpdateAction.truncate,
+      action: LogUpdateAction.TRUNCATE,
     });
   }
 
@@ -549,6 +547,10 @@ class LogStore implements LogAlertIndex {
   manifestLog(mn: string): LogLine[] {
     let spans = this.spansForManifest(mn);
     return this.getPatchesForSpans(spans, 0).lines;
+  }
+
+  patchSet(key: string, checkpoint: number): LogPatchSet {
+    return this.manifestLogPatchSet(key, checkpoint);
   }
 
   manifestLogPatchSet(mn: string, checkpoint: number): LogPatchSet {
@@ -783,7 +785,7 @@ class LogStore implements LogAlertIndex {
     }
 
     this.invokeUpdateCallbacks({
-      action: LogUpdateAction.truncate,
+      action: LogUpdateAction.TRUNCATE,
     });
   }
 

@@ -433,7 +433,7 @@ describe("LogStore", () => {
       logStore.append(logList);
 
       expect(callback).toHaveBeenCalled();
-      expect(callback.mock.calls[0][0].action).toBe(LogUpdateAction.append);
+      expect(callback.mock.calls[0][0].action).toBe(LogUpdateAction.APPEND);
     });
 
     test("removes callback correctly", () => {

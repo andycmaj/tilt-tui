@@ -1,7 +1,6 @@
 # Tilt Tui
 
-<img width="2388" height="1096" alt="CAP 2026-10-19 at 11 16 38@2x" src="https://github.com/user-attachments/assets/ea12781d-ef35-4cae-b6fe-948b9d6270cf" />
-
+![screenshot](./docs/tui-screenshot.png)
 
 ## Requirements
 
@@ -12,9 +11,9 @@
 
 ### Dev Mode
 
-```
 bun install
 bun dev
+
 ```
 
 ### Compile a Binary
@@ -22,11 +21,14 @@ bun dev
 compile a binary for the current platform
 
 ```
+
 bun run build:binary:single
 
 # then symlink built binary
+
 $ which tui
-tui: aliased to /home/ac/dev/tilt-tui-root/dist/tilt-tui-linux-x64/bin/tilt-tui   
+tui: aliased to /home/ac/dev/tilt-tui-root/dist/tilt-tui-linux-x64/bin/tilt-tui
+
 ```
 
 ### Debugging
@@ -34,15 +36,17 @@ tui: aliased to /home/ac/dev/tilt-tui-root/dist/tilt-tui-linux-x64/bin/tilt-tui
 run debug command then click lick to open javascript debug console, or attach another debugger to port.
 
 ```
+
 ❯ bun run debug
 $ SHOW_CONSOLE=true bun run --inspect-wait --conditions=browser --preload @opentui/solid/preload ./src/index.tsx
 --------------------- Bun Inspector ---------------------
 Listening:
-  ws://localhost:6499/de2t02omqqh
+ws://localhost:6499/de2t02omqqh
 Inspect in browser:
-  https://debug.bun.sh/#localhost:6499/de2t02omqqh
+<https://debug.bun.sh/#localhost:6499/de2t02omqqh>
 --------------------- Bun Inspector ---------------------
-```
+
+````
 
 ## Using
 
@@ -71,9 +75,10 @@ Example `~/.config/tilt-tui/config.json`:
     ]
   }
 }
-```
+````
 
 Each filter:
+
 - Has a **name** (displayed in the UI when active)
 - Contains an array of **regex patterns** (JavaScript regex syntax)
 - Filters are applied automatically when the config file is present

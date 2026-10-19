@@ -1,6 +1,7 @@
 # Tilt Tui
 
-![screenshot](./docs/tui-screenshot.png)
+<img width="2388" height="1096" alt="CAP 2026-10-19 at 11 16 38@2x" src="https://github.com/user-attachments/assets/ea12781d-ef35-4cae-b6fe-948b9d6270cf" />
+
 
 ## Requirements
 

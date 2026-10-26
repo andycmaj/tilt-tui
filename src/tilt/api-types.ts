@@ -91,6 +91,18 @@ export enum UpdateStatus {
   None = "none",
 }
 
+export interface APIWaitingOnRef {
+  group?: string;
+  apiVersion?: string;
+  kind: string;
+  name: string;
+}
+
+export interface APIWaiting {
+  reason: string;
+  on?: APIWaitingOnRef[];
+}
+
 export interface APIResourceStatus {
   // Common fields
   order: number;
@@ -99,6 +111,7 @@ export interface APIResourceStatus {
   pendingBuildSince?: string;
   runtimeStatus?: RuntimeStatus;
   updateStatus?: UpdateStatus;
+  waiting?: APIWaiting;
 
   // Build-related fields
   buildHistory?: APIBuild[];

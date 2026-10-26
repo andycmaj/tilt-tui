@@ -132,3 +132,10 @@ export function getEffectiveStatus(resource: Resource): ResourceStatus {
 
   return ResourceStatus.None;
 }
+
+// Tilt also holds resources on non-UIResource objects (e.g. a Cmd's
+// readiness), which have no tree row to point at.
+export function waitingOnResources(r: APIResource | undefined): string[] {
+  const refs = r?.status?.waiting?.on ?? [];
+  return refs.filter((ref) => ref.kind === "UIResource").map((ref) => ref.name);
+}

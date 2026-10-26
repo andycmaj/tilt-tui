@@ -33,6 +33,7 @@ import { getGroupKey } from "@/tilt/groups";
 import {
   getEffectiveStatus,
   runtimeReadinessDurationMs,
+  waitingOnResources,
 } from "@/tilt/status-utils";
 import {
   useBlinkWhenBuilding,
@@ -497,6 +498,8 @@ function ResourceNode(props: {
     return ms === undefined ? "" : formatDuration(ms);
   });
 
+  const waitingOn = createMemo(() => waitingOnResources(r().raw).join(", "));
+
   const subheading = createMemo(() => {
     const parts: string[] = [];
     if (lastUpdate()) parts.push(lastUpdate());
@@ -522,6 +525,10 @@ function ResourceNode(props: {
     if (props.isSelected) return selectedTextColor();
     return props.theme.textMuted; // Always muted for subheading
   });
+
+  const waitingColor = createMemo(() =>
+    props.isSelected ? selectedTextColor() : props.theme.warning,
+  );
 
   const backgroundColor = createMemo(() => {
     if (props.isSelected && props.isFocused) {
@@ -556,7 +563,12 @@ function ResourceNode(props: {
       {/* Line 2: Timestamp + duration - build status border */}
       <box flexDirection="row" justifyContent="flex-start" gap={1}>
         <text bg={buildColor()}> </text>
-        <text fg={subheadingColor()}>{subheading()}</text>
+        <Show
+          when={waitingOn()}
+          fallback={<text fg={subheadingColor()}>{subheading()}</text>}
+        >
+          <text fg={waitingColor()}>⧗ {waitingOn()}</text>
+        </Show>
       </box>
     </box>
   );

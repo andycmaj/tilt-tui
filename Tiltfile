@@ -378,6 +378,31 @@ cmd_button('continuous-stream',
 )
 
 # =============================================================================
+# Resource Dependencies (waiting-on display)
+# =============================================================================
+
+# Slow to become ready, so dependents sit in the "waiting" state for a while
+local_resource(
+    'slow-db',
+    cmd='echo "starting db" && sleep 20 && echo "db ready"',
+    labels=['deps'],
+)
+
+local_resource(
+    'migrate',
+    cmd='echo "migrating"',
+    resource_deps=['slow-db'],
+    labels=['deps'],
+)
+
+local_resource(
+    'worker',
+    serve_cmd='echo "worker up" && sleep 86400',
+    resource_deps=['slow-db', 'migrate'],
+    labels=['deps'],
+)
+
+# =============================================================================
 # Original Echo Resources
 # =============================================================================
 

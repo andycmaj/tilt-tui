@@ -132,3 +132,23 @@ export function getEffectiveStatus(resource: Resource): ResourceStatus {
 
   return ResourceStatus.None;
 }
+
+// Tilt also holds resources on non-UIResource objects (e.g. a Cmd's
+// readiness), which have no tree row to point at.
+export function waitingOnResources(r: APIResource | undefined): string[] {
+  const refs = r?.status?.waiting?.on ?? [];
+  return refs.filter((ref) => ref.kind === "UIResource").map((ref) => ref.name);
+}
+
+// One name keeps the tree row from wrapping; a building blocker is the one
+// most likely to unblock soon, so it's the most useful to show.
+export function primaryBlocker(
+  r: APIResource | undefined,
+  resources: Resource[],
+): string | undefined {
+  const names = waitingOnResources(r);
+  const building = new Set(
+    resources.filter((res) => res.isBuilding).map((res) => res.name),
+  );
+  return names.find((name) => building.has(name)) ?? names[0];
+}

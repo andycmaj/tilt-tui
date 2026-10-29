@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { APIResource, APIResourceStatus } from "./api-types";
-import { waitingOnResources } from "./status-utils";
+import { primaryBlocker, waitingOnResources } from "./status-utils";
+import type { Resource } from "./types";
 
 function resource(status: Partial<APIResourceStatus>): APIResource {
   return {
@@ -36,5 +37,37 @@ describe("waitingOnResources", () => {
   test("empty when not waiting", () => {
     expect(waitingOnResources(resource({}))).toEqual([]);
     expect(waitingOnResources(undefined)).toEqual([]);
+  });
+});
+
+describe("primaryBlocker", () => {
+  const waitingOnApiAndDb = resource({
+    waiting: {
+      reason: "waiting-for-dependencies",
+      on: [
+        { kind: "UIResource", name: "api" },
+        { kind: "UIResource", name: "db" },
+      ],
+    },
+  });
+
+  function res(name: string, isBuilding: boolean): Resource {
+    return { name, isBuilding } as Resource;
+  }
+
+  test("prefers a building dependency", () => {
+    expect(
+      primaryBlocker(waitingOnApiAndDb, [res("api", false), res("db", true)]),
+    ).toBe("db");
+  });
+
+  test("falls back to the first dependency", () => {
+    expect(
+      primaryBlocker(waitingOnApiAndDb, [res("api", false), res("db", false)]),
+    ).toBe("api");
+  });
+
+  test("undefined when not waiting", () => {
+    expect(primaryBlocker(resource({}), [])).toBeUndefined();
   });
 });

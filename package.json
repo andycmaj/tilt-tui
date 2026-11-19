@@ -21,7 +21,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@andycmaj/opentui-app": "0.3.0",
+    "@andycmaj/opentui-app": "0.5.6",
     "@opentui/core": "0.5.12",
     "@opentui/solid": "0.5.12",
     "citty": "^0.2.2",

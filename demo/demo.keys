@@ -1,0 +1,30 @@
+# Site demo for tilt-tui, run against TILT_TUI_FIXTURE=default.
+# Recorded by opentui-app's apps/site/scripts/record.ts.
+wait 800
+key space        # resource picker
+type api
+wait 400
+key enter        # select api; its logs fill the right pane
+wait 1400
+key tab          # back to the tree
+key j            # worker, mid-build
+wait 900
+key j j          # web
+wait 700
+key j            # storybook: a failed build
+wait 1600
+key f            # status filter: healthy only
+wait 900
+key f            # unhealthy only
+wait 1200
+key f f f        # back to all
+key space        # picker again
+type work
+wait 400
+key enter
+key r            # trigger a rebuild
+wait 2600
+key ?            # every binding, by scope
+wait 2000
+key esc
+wait 800

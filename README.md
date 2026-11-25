@@ -48,6 +48,18 @@ Inspect in browser:
 
 ````
 
+### Fixture mode
+
+Run against a canned Tilt session, with no tilt process, cluster, or network:
+
+```
+TILT_TUI_FIXTURE=default bun run --conditions=browser --preload @opentui/solid/preload ./src/index.tsx
+```
+
+The value is a built-in fixture name (see `src/tilt/fixtures.ts`) or a path to
+a JSON array of `/ws/view` messages. Triggering a resource (`r`) plays a short
+rebuild. `demo/demo.keys` drives the recording on the project website.
+
 ## Using
 
 `?` will show you list of context-aware keyboard shortcuts.

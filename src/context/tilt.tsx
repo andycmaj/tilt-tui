@@ -21,6 +21,7 @@ import {
   call,
 } from "effection";
 import { TiltClient } from "../tilt/client";
+import { FixtureTiltClient, fixtureName } from "../tilt/fixtures";
 import {
   type Resource,
   type APIButton,
@@ -82,7 +83,10 @@ export { useTilt };
 export function TiltProvider(
   props: ParentProps<{ host?: string; port?: number }>,
 ) {
-  const client = new TiltClient({ host: props.host, port: props.port });
+  const fixture = fixtureName();
+  const client = fixture
+    ? new FixtureTiltClient(fixture)
+    : new TiltClient({ host: props.host, port: props.port });
 
   const logStore = new LogStore();
 

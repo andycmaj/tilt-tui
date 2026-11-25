@@ -76,6 +76,46 @@ export interface EngineDump {
   manifestTargets: Record<string, EngineDumpManifestTarget>;
 }
 
+/** The signals behind TiltStreams, one per kind of view update. */
+export interface TiltSignals {
+  resources: Signal<ResourcesUpdate, void>;
+  buttons: Signal<ButtonsUpdate, void>;
+  logs: Signal<LogsUpdate, void>;
+  session: Signal<SessionUpdate, void>;
+}
+
+/**
+ * Route one view message to the streams. Shared by the live WebSocket and the
+ * fixture client, so canned data takes the same parsing path as real data.
+ */
+export function dispatchViewResponse(
+  viewResp: APIViewResponse,
+  signals: TiltSignals,
+): void {
+  if (viewResp.uiSession?.status.tiltStartTime) {
+    signals.session.send({
+      tiltStartTime: viewResp.uiSession.status.tiltStartTime,
+    });
+  }
+
+  if (viewResp.uiResources) {
+    signals.resources.send({
+      resources: viewResp.uiResources.map(convertResource),
+    });
+  }
+
+  if (viewResp.uiButtons) {
+    signals.buttons.send({ buttons: viewResp.uiButtons });
+  }
+
+  if (viewResp.logList) {
+    signals.logs.send({
+      logList: viewResp.logList,
+      entries: parseLogList(viewResp.logList),
+    });
+  }
+}
+
 export class TiltClient {
   private baseURL: string;
   private wsURL: string;
@@ -223,41 +263,12 @@ export class TiltClient {
       ws.onmessage = (event) => {
         try {
           const viewResp: APIViewResponse = JSON.parse(event.data);
-
-          if (viewResp.uiSession?.status.tiltfileKey) {
-            console.log(
-              "USING TILTFILE",
-              viewResp.uiSession?.status.tiltfileKey,
-            );
-          }
-
-          if (viewResp.uiSession?.status.tiltStartTime) {
-            sessionSignal.send({
-              tiltStartTime: viewResp.uiSession.status.tiltStartTime,
-            });
-          }
-
-          if (viewResp.uiResources) {
-            const resources = viewResp.uiResources.map(convertResource);
-            resourcesSignal.send({
-              resources,
-            });
-          }
-
-          if (viewResp.uiButtons) {
-            buttonsSignal.send({
-              buttons: viewResp.uiButtons,
-            });
-          }
-
-          // Send logs update if logList is present
-          if (viewResp.logList) {
-            const entries = parseLogList(viewResp.logList);
-            logsSignal.send({
-              logList: viewResp.logList,
-              entries,
-            });
-          }
+          dispatchViewResponse(viewResp, {
+            resources: resourcesSignal,
+            buttons: buttonsSignal,
+            logs: logsSignal,
+            session: sessionSignal,
+          });
         } catch (err) {
           console.error("Failed to parse WebSocket message:", err);
         }

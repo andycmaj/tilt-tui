@@ -17,6 +17,7 @@ import {
 import { useTilt } from "../context/tilt";
 import { useVersionInfo } from "../context/version-info";
 import { Commands } from "../commands";
+import { searchHeaderLabel } from "../utils/log-search-utils";
 import type { LogSearchFilter } from "./log-search-modal";
 
 interface ResourceViewProps {
@@ -140,7 +141,7 @@ export function ResourceView(props: ResourceViewProps) {
           {(search) => (
             <text fg={theme.primary} flexShrink={0}>
               {" "}
-              [/{search().query}/: {matchCount()} matches]
+              {searchHeaderLabel(search(), matchCount())}
             </text>
           )}
         </Show>

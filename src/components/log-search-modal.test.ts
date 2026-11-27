@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { parseSearchQuery } from "../utils/log-search-utils";
+import { parseSearchQuery, searchHeaderLabel } from "../utils/log-search-utils";
 
 describe("parseSearchQuery", () => {
   test("returns null for empty string", () => {
@@ -56,5 +56,22 @@ describe("parseSearchQuery", () => {
     expect(result!.regex!.test("Error: something")).toBe(true);
     expect(result!.regex!.test("error: thing")).toBe(true);
     expect(result!.regex!.test("Warning: something")).toBe(false);
+  });
+});
+
+describe("searchHeaderLabel", () => {
+  test("shows a regex query once, with only its own slashes", () => {
+    const filter = parseSearchQuery("/GET \\/v1/")!;
+    expect(searchHeaderLabel(filter, 1)).toBe("[/GET \\/v1/: 1 matches]");
+  });
+
+  test("keeps regex flags", () => {
+    const filter = parseSearchQuery("/error/i")!;
+    expect(searchHeaderLabel(filter, 3)).toBe("[/error/i: 3 matches]");
+  });
+
+  test("shows a plain query as typed, without regex slashes", () => {
+    const filter = parseSearchQuery("hello")!;
+    expect(searchHeaderLabel(filter, 0)).toBe("[hello: 0 matches]");
   });
 });

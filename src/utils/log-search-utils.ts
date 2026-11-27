@@ -34,3 +34,12 @@ export function parseSearchQuery(query: string): LogSearchFilter | null {
     regex: null,
   };
 }
+
+// The query is shown as typed: a regex query already carries its slashes,
+// and wrapping a plain query in them would make it read as a regex.
+export function searchHeaderLabel(
+  filter: LogSearchFilter,
+  matchCount: number,
+): string {
+  return `[${filter.query}: ${matchCount} matches]`;
+}
